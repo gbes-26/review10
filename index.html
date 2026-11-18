@@ -147,6 +147,8 @@ input[type=text],input[type=password],select{width:100%;font:inherit;font-size:1
 .kb button.miss{background:var(--nobg);border-color:var(--no);color:var(--no)}
 /* end */
 .end{text-align:center}
+.clock{display:inline-flex;align-items:center;gap:8px;margin:12px 0 0;background:var(--card);border-radius:99px;padding:6px 18px;font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+.clock span{color:var(--soft);font-weight:400}
 .end h2{font-size:clamp(30px,5vw,44px);margin:0;line-height:1.1}
 .big{font-family:Jua,sans-serif;font-size:clamp(72px,16vw,128px);line-height:1;color:var(--co);margin:10px 0 0;font-variant-numeric:tabular-nums}
 .stars{font-size:46px;letter-spacing:6px;color:var(--sun);line-height:1;margin:8px 0}
@@ -212,6 +214,7 @@ th{font-size:14px;color:var(--soft);font-weight:700}
 
 <section id="sEnd" class="end hide">
   <h2 id="eT"></h2>
+  <p class="clock" id="eClock"></p>
   <div class="big" id="eS">0</div>
   <div class="stars" id="eStar"></div>
   <div class="rank" id="eR"></div>
@@ -407,7 +410,7 @@ $("snd").onclick=()=>{sound=!sound;$("snd").textContent=sound?"소리 켜짐":"�
 $("quit").onclick=()=>{quit=true;G.done()};
 
 function finish(rate,stats){stopAll();show("sEnd");const st=rate>=.9?3:rate>=.7?2:rate>=.5?1:0;
- $("eT").textContent=`${name}의 ${G.name} 결과`;$("eS").textContent=score;
+ $("eT").textContent=`${name}의 ${G.name} 결과`;startClock();$("eS").textContent=score;
  $("eStar").innerHTML=[0,1,2].map(i=>`<span class="${i<st?"":"off"}">★</span>`).join("");
  $("eR").textContent=["출발 준비 완료! 다시 도전해요","견습 탐험가","베테랑 탐험가","시간여행 마스터"][st];
  $("eStats").innerHTML=stats.map(([l,v])=>`<div><small>${l}</small><b>${v}</b></div>`).join("");
@@ -416,6 +419,10 @@ function finish(rate,stats){stopAll();show("sEnd");const st=rate>=.9?3:rate>=.7?
  let b=0;const k="tm-best-"+G.name;try{b=+localStorage.getItem(k)||0;if(!quit&&mode==="main"&&score>b)localStorage.setItem(k,score)}catch(e){}
  $("best").textContent=!quit&&mode==="main"&&score>b?"이 기기에서 세운 "+G.name+" 새 최고 기록이에요!":b?"이 기기 "+G.name+" 최고 기록: "+b+"점":"";
  if(st>=2){good();setTimeout(good,250)}saveResult()}
+let clk=null;const DAY="일월화수목금토";
+function startClock(){const draw=()=>{const d=new Date(),h=d.getHours(),p=n=>String(n).padStart(2,"0");
+ $("eClock").innerHTML=`<span>현재 시각</span> ${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${DAY[d.getDay()]}) ${h<12?"오전":"오후"} ${h%12||12}:${p(d.getMinutes())}:${p(d.getSeconds())}`};
+ draw();clearInterval(clk);clk=setInterval(()=>{if($("sEnd").classList.contains("hide")){clearInterval(clk);return}draw()},1000)}
 $("again").onclick=()=>begin(G);
 $("retry").onclick=()=>{pool=wrongs.slice();mode="review";begin(quiz)};
 $("home").onclick=()=>{mode="main";pool=W;show("sStart")};
